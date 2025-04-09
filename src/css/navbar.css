@@ -1,0 +1,75 @@
+.sidebar {
+    width: 200px;
+    height: cal(100vh - 40px);
+    background-color: #fffefb;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    justify-content: space-between;
+    font-family: sans-serif;
+  }
+  
+  .brand {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo {
+    width: 40px;
+    margin-right: 10px;
+  }
+  
+  .brand-text h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  
+  .brand-text p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #555;
+  }
+  
+  .nav-links {
+    list-style: none;
+    padding: 0;
+    flex-grow: 1;
+  }
+  
+  .nav-links li {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    color: #222;
+    cursor: pointer;
+  }
+  
+  .nav-links li:hover {
+    color: #000;
+  }
+  
+  .nav-links li svg {
+    margin-right: 10px;
+    font-size: 1rem;
+  }
+  
+  .logout {
+    display: flex;
+    align-items: flex-end;
+    font-size: 0.95rem;
+    color: #222;
+    height: 330px;
+  }
+  
+  .logout svg {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+
+  .logout span {
+    cursor: pointer;
+  }
+  
