@@ -7,6 +7,13 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
+  .gri-cont-to-fit-in-page{
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: white;
+    border-radius: 9px;
+  }
   
   .grievance-heading {
     font-size: 1.75rem;
