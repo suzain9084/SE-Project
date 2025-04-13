@@ -1,8 +1,16 @@
 import React from 'react';
 import "../css/navbar.css";
-import { FaTachometerAlt, FaFileAlt, FaIdCard, FaUsers, FaBed, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import PersonIcon from '@mui/icons-material/Person';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ReportIcon from '@mui/icons-material/Report';
+import SettingsIcon from '@mui/icons-material/Settings';
+import HelpIcon from '@mui/icons-material/Help';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate()
   return (
     <div className="sidebar">
       <div className="brand">
@@ -17,8 +25,8 @@ const Navbar = () => {
         ) : (
           <>
             <div className="button-cont-nav">
-              <div className="login-btn">Login</div>
-              <div className="signup-btn">Sign Up</div>
+              <div className="login-btn" onClick={() => navigate("/login")}>Login</div>
+              <div className="signup-btn" onClick={() => navigate("/signup")}>Sign Up</div>
             </div>
           </>
         )}
@@ -26,17 +34,19 @@ const Navbar = () => {
       </div>
 
       <ul className="nav-links">
-        <li><FaTachometerAlt /><span>Dashboard</span></li>
-        <li><FaFileAlt /><span>Complaints</span></li>
-        <li><FaIdCard /><span>Outpass</span></li>
-        <li><FaUsers /><span>Student Management</span></li>
-        <li><FaBed /><span>Hostel Allotment</span></li>
-        <li><FaCog /><span>Settings</span></li>
-        <li><FaFileAlt /><span>Preferences</span></li>
+        <NavLink to={"/dashboard"} className={({ isActive }) => (isActive ? 'active' : '')}><li><DashboardIcon sx={{height:"70%",width:'auto'}} /><span>Dashboard</span></li></NavLink>
+
+        <NavLink to={"/"} className={({ isActive }) => (isActive ? 'active' : '')}><li><ReportIcon sx={{height:"70%",width:'auto'}}/><span>Complaints</span></li></NavLink>
+
+        <NavLink to={"/profile"} className={({ isActive }) => (isActive ? 'active' : '')}><li><PersonIcon sx={{height:"70%",width:'auto'}}/><span>Profile</span></li></NavLink>
+
+        <NavLink to={"/settings"} className={({ isActive }) => (isActive ? 'active' : '')}><li><SettingsIcon sx={{height:"70%",width:'auto'}}/><span>Settings</span></li></NavLink>
+
+        <NavLink to={"/about"} className={({ isActive }) => (isActive ? 'active' : '')}><li><HelpIcon sx={{height:"70%",width:'auto'}}/><span>About</span></li></NavLink>
       </ul>
 
       <div className="logout">
-        <FaSignOutAlt /><span>Logouts</span>
+        <LogoutIcon /><span>Logouts</span>
       </div>
     </div>
   );

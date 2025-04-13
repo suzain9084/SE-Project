@@ -73,6 +73,20 @@ const Settings = () => {
                       edge="end"
                       checked={settings.notifications}
                       onChange={() => handleToggle('notifications')}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'black',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: 'black',
+                        },
+                        '& .MuiSwitch-thumb': {
+                          color: 'black',
+                        },
+                        '& .MuiSwitch-track': {
+                          backgroundColor: '#ccc',
+                        },
+                      }}
                     />
                   </ListItemSecondaryAction>
                 </ListItem>
@@ -86,6 +100,20 @@ const Settings = () => {
                       edge="end"
                       checked={settings.emailUpdates}
                       onChange={() => handleToggle('emailUpdates')}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'black',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: 'black',
+                        },
+                        '& .MuiSwitch-thumb': {
+                          color: 'black',
+                        },
+                        '& .MuiSwitch-track': {
+                          backgroundColor: '#ccc',
+                        },
+                      }}
                     />
                   </ListItemSecondaryAction>
                 </ListItem>
@@ -111,6 +139,20 @@ const Settings = () => {
                       edge="end"
                       checked={settings.darkMode}
                       onChange={() => handleToggle('darkMode')}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'black',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: 'black',
+                        },
+                        '& .MuiSwitch-thumb': {
+                          color: 'black',
+                        },
+                        '& .MuiSwitch-track': {
+                          backgroundColor: '#ccc',
+                        },
+                      }}
                     />
                   </ListItemSecondaryAction>
                 </ListItem>
@@ -164,6 +206,7 @@ const Settings = () => {
                 variant="contained"
                 startIcon={<Save />}
                 onClick={handleSave}
+                sx={{backgroundColor:"black"}}
               >
                 Save Changes
               </Button>
