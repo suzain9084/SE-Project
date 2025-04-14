@@ -1,6 +1,5 @@
 alembic==1.13.2
 blinker==1.8.2
-click==8.1.7
 Flask==3.0.3
 Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
@@ -18,8 +17,5 @@ jiwer==3.1.0
 PyAudio==0.2.14
 pocketsphinx==5.0.4
 faster_whisper==1.1.1
-<<<<<<< HEAD
 soundfile==0.13.1
-=======
-soundfile==0.13.1
->>>>>>> 57574b90b22fb0741dbd20b3de523c0fc9d5041d
+cryptography==44.0.2

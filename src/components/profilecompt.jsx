@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   Box,
   Typography,
@@ -21,148 +21,148 @@ import {
   Save,
 } from '@mui/icons-material';
 
-const mockUser = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  phone: '+1 234 567 8900',
-  role: 'Student',
-  id: 'STU123456',
-  department: 'Computer Science',
-  year: '3rd Year',
-};
+import { userContext } from "../context/usercontext.jsx"
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState(mockUser);
+  const { User, setUser } = useContext(userContext)
+  const [copyUser, setcopyUser] = useState({})
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setIsEditing(true);
-  };
+    setcopyUser({...User})
+  }, [isEditing,User]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(async () => {
+    try {
+      let res = await fetch("")
+    } catch (error) {
+      
+    }
     setIsEditing(false);
-    // Here you would typically make an API call to update the user data
-  };
+  }, [User]);
 
-  const handleChange = (field) => (event) => {
-    setUserData({
-      ...userData,
-      [field]: event.target.value,
-    });
-  };
+  const handleChange = useCallback ((field) => (event) => {
+    setcopyUser(()=>{
+      let update = {...copyUser,[field]: event.target.value}
+      return update
+    })
+    console.log(update)
+    setcopyUser(update)
+  },[User,copyUser]);
 
   return (
     <div className="profile-cont">
-    <Box>
-      <Typography variant="h4" sx={{ mb: 4 }}>
-        Profile
-      </Typography>
+      <Box>
+        <Typography variant="h4" sx={{ mb: 4 }}>
+          Profile
+        </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, textAlign: 'center' }}>
-            <Avatar
-              sx={{
-                width: 120,
-                height: 120,
-                mx: 'auto',
-                mb: 2,
-                bgcolor: 'primary.main',
-              }}
-            >
-              {userData.name.charAt(0)}
-            </Avatar>
-            <Typography variant="h5" gutterBottom>
-              {userData.name}
-            </Typography>
-            <Typography color="textSecondary" gutterBottom>
-              {userData.role}
-            </Typography>
-            <Button
-              variant="outlined"
-              startIcon={isEditing ? <Save /> : <Edit />}
-              onClick={isEditing ? handleSave : handleEdit}
-              sx={{ mt: 2 ,backgroundColor: 'black', borderRadius:'3px', color:'white'}}
-            >
-              {isEditing ? 'Save Changes' : 'Edit Profile'}
-            </Button>
-          </Paper>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Paper sx={{ p: 3, textAlign: 'center' }}>
+              <Avatar
+                sx={{
+                  width: 120,
+                  height: 120,
+                  mx: 'auto',
+                  mb: 2,
+                  bgcolor: 'primary.main',
+                }}
+              >
+                {User.full_name && User.full_name.charAt(0)}
+              </Avatar>
+              <Typography variant="h5" gutterBottom>
+                {User.full_name}
+              </Typography>
+              <Typography color="textSecondary" gutterBottom>
+                {User.department}
+              </Typography>
+              <Button
+                variant="outlined"
+                startIcon={isEditing ? <Save /> : <Edit />}
+                onClick={isEditing ? handleSave : handleEdit}
+                sx={{ mt: 2, backgroundColor: 'black', borderRadius: '3px', color: 'white' }}
+              >
+                {isEditing ? 'Save Changes' : 'Edit Profile'}
+              </Button>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={8}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Personal Information
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Full Name"
+                    value={isEditing ? copyUser.full_name : User.full_name}
+                    onChange={handleChange('name')}
+                    disabled={!isEditing}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    value={isEditing ? copyUser.email : User.email}
+                    onChange={handleChange('email')}
+                    disabled={!isEditing}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Phone"
+                    value={isEditing ? copyUser.phone : User.phone}
+                    onChange={handleChange('phone')}
+                    disabled={!isEditing}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Student ID"
+                    value={User.student_id}
+                    disabled
+                  />
+                </Grid>
+              </Grid>
+
+              <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
+                Academic Information
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <School />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Department"
+                    secondary={User.department}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon>
+                    <Badge />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Year"
+                    secondary={User.year}
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
         </Grid>
-
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Personal Information
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-            
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Full Name"
-                  value={userData.name}
-                  onChange={handleChange('name')}
-                  disabled={!isEditing}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  value={userData.email}
-                  onChange={handleChange('email')}
-                  disabled={!isEditing}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Phone"
-                  value={userData.phone}
-                  onChange={handleChange('phone')}
-                  disabled={!isEditing}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Student ID"
-                  value={userData.id}
-                  disabled
-                />
-              </Grid>
-            </Grid>
-
-            <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
-              Academic Information
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-
-            <List>
-              <ListItem>
-                <ListItemIcon>
-                  <School />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Department"
-                  secondary={userData.department}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemIcon>
-                  <Badge />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Year"
-                  secondary={userData.year}
-                />
-              </ListItem>
-            </List>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
+      </Box>
     </div>
   );
 };

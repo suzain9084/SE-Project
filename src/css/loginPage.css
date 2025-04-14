@@ -12,7 +12,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100vw;
 }
 
 .h1 {
@@ -213,4 +212,16 @@
   margin: 0 5px;
   height: 40px;
   width: 40px;
+}
+
+
+.input-error {
+  border: 1px solid red;
+  background-color: #ffe6e6;
+}
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: -5px;
+  margin-bottom: 10px;
 }

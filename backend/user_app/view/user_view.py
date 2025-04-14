@@ -1,16 +1,17 @@
 from flask import jsonify
 
-class GrievanceView:
+class UserView:
     @staticmethod
     def renderUser(user):
         return jsonify({
             'u_id': user.u_id,
-            'name': user.name,
-            'address': user.address,
-            'city': user.city,
-            'country': user.country,
+            'student_id': user.student_id,
+            'full_name': user.full_name,
             'email': user.email,
-            'phone': user.phone
+            'phone': user.phone,
+            'department': user.department,
+            'year': user.year,
+            'u_id': user.u_id
         })
     
     @staticmethod

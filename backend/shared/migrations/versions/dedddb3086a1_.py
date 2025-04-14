@@ -1,16 +1,16 @@
 """empty message
 
-Revision ID: e231ec96cba0
+Revision ID: dedddb3086a1
 Revises: 
-Create Date: 2025-04-06 19:12:05.501911
+Create Date: 2025-04-14 10:02:19.962817
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = 'e231ec96cba0'
+revision = 'dedddb3086a1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,21 +30,23 @@ def upgrade():
     )
     op.create_table('user',
     sa.Column('u_id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=100), nullable=True),
-    sa.Column('address', sa.String(length=200), nullable=True),
-    sa.Column('city', sa.String(length=100), nullable=True),
-    sa.Column('country', sa.String(length=100), nullable=True),
+    sa.Column('student_id', sa.Integer(), nullable=True),
+    sa.Column('full_name', sa.String(length=100), nullable=True),
     sa.Column('email', sa.String(length=100), nullable=True),
     sa.Column('phone', sa.String(length=15), nullable=True),
+    sa.Column('password', sa.String(length=500), nullable=True),
+    sa.Column('department', sa.String(length=500), nullable=True),
+    sa.Column('year', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('u_id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('student_id')
     )
     op.create_table('grievance',
     sa.Column('g_id', sa.Integer(), nullable=False),
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('time_stamp', sa.DateTime(), nullable=True),
     sa.Column('text', sa.Text(), nullable=True),
-    sa.Column('audio', sa.String(length=200), nullable=True),
+    sa.Column('audio', mysql.LONGBLOB(), nullable=True),
     sa.Column('u_id', sa.Integer(), nullable=False),
     sa.Column('c_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['c_id'], ['committee.c_id'], ),
