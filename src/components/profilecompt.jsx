@@ -28,28 +28,57 @@ const Profile = () => {
   const { User, setUser } = useContext(userContext)
   const [copyUser, setcopyUser] = useState({})
 
+  const [name, setName] = useState(null)
+  const [email, setEmail] = useState(null)
+  const [phone, setPhone] = useState(null)
+
+
   const handleEdit = useCallback(() => {
     setIsEditing(true);
-    setcopyUser({...User})
-  }, [isEditing,User]);
+    setName(User.full_name)
+    setEmail(User.email)
+    setPhone(User.phone)
+  }, [isEditing, User, phone, email, name]);
 
   const handleSave = useCallback(async () => {
     try {
-      let res = await fetch("")
-    } catch (error) {
-      
-    }
-    setIsEditing(false);
-  }, [User]);
+      let data = {
+        u_id: User.u_id,
+        full_name: name,
+        email: email,
+        phone: phone
+      }
+      let res = await fetch("http://127.0.0.1:5000/update", {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+      })
 
-  const handleChange = useCallback ((field) => (event) => {
-    setcopyUser(()=>{
-      let update = {...copyUser,[field]: event.target.value}
-      return update
-    })
-    console.log(update)
-    setcopyUser(update)
-  },[User,copyUser]);
+      let resData = await res.json()
+      if (res.status == 200) {
+        setUser(resData)
+        alert("Changes saved successfully");
+      } else {
+        alert("Failed to save changes");
+      }
+    } catch (error) {
+      alert("An error occurred: " + error.message);
+    } finally {
+      setIsEditing(false);
+    }
+  }, [User, email, phone, name]);
+
+  const handleChange = useCallback((field) => (event) => {
+    if (field == 'name') {
+      setName(event.target.value)
+    } else if (field == 'email') {
+      setEmail(event.target.value)
+    } else {
+      setPhone(event.target.value)
+    }
+  }, [name, email, phone, User]);
 
   return (
     <div className="profile-cont">
@@ -101,7 +130,7 @@ const Profile = () => {
                   <TextField
                     fullWidth
                     label="Full Name"
-                    value={isEditing ? copyUser.full_name : User.full_name}
+                    value={isEditing ? name : User.full_name}
                     onChange={handleChange('name')}
                     disabled={!isEditing}
                   />
@@ -110,7 +139,7 @@ const Profile = () => {
                   <TextField
                     fullWidth
                     label="Email"
-                    value={isEditing ? copyUser.email : User.email}
+                    value={isEditing ? email : User.email}
                     onChange={handleChange('email')}
                     disabled={!isEditing}
                   />
@@ -119,7 +148,7 @@ const Profile = () => {
                   <TextField
                     fullWidth
                     label="Phone"
-                    value={isEditing ? copyUser.phone : User.phone}
+                    value={isEditing ? phone : User.phone}
                     onChange={handleChange('phone')}
                     disabled={!isEditing}
                   />

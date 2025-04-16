@@ -19,3 +19,4 @@ pocketsphinx==5.0.4
 faster_whisper==1.1.1
 soundfile==0.13.1
 cryptography==44.0.2
+flask_cors==5.0.1
