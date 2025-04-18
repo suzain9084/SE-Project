@@ -22,18 +22,6 @@ class UserController:
             return UserView.render_error(user), 401
         
     @staticmethod
-    def add_grievance(file,data):
-        s_id = data["s_id"]
-        c_id = data["c_id"]
-        audio = file['file'].read()
-        text = data['name']
-        res, grievance = UserService.add_grievance(s_id,c_id,audio,text)
-        if res:
-            return UserView.render_grievance(grievance)
-        else:
-            return UserView.render_error(grievance)
-        
-    @staticmethod
     def update(data):
         full_name = data['full_name']
         email = data['email']

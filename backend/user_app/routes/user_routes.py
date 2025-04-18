@@ -18,9 +18,3 @@ def udate():
     data = request.json
     return UserController.update(data)
 
-@user_bp.route('/add_grievance', methods=['POST'])
-def add_grievance():
-    file = request.files
-    data = request.form
-    return UserController.add_grievance(file,data)
-

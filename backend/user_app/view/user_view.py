@@ -18,8 +18,4 @@ class UserView:
     def render_error(error):
         return jsonify({'message':error})
 
-    @staticmethod
-    def render_grievance(grievance):
-        return jsonify(grievance)
-
 

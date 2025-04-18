@@ -1,21 +1,42 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import "../css/newgrievanceform.css";
+import toWav from 'audiobuffer-to-wav';
+import MicNoneIcon from '@mui/icons-material/MicNone';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import { userContext } from '../context/usercontext';
 
 
 const NewGrievanceForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [assignedTo, setAssignedTo] = useState('Maintenance Committee');
+  const [assignedTo, setAssignedTo] = useState('Not Assign');
+  const [isloading, setIsloading] = useState(false)
 
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
+  const wavBlobRef = useRef(null)
 
-  const handleSubmit = (e) => {
+  const { User } = useContext(userContext)
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Grievance submitted!');
+    let formdata = new FormData()
+    formdata.append('title', title)
+    formdata.append("description", description)
+    formdata.append('blob', wavBlobRef.current)
+    formdata.append('comitttee', assignedTo)
+    formdata.append('u_id', User.u_id)
+    let res = await fetch("http://127.0.0.1:5001/speechToText", {
+      method: "POST",
+      body: formdata
+    })
   };
 
   const startRecording = async () => {
@@ -31,11 +52,31 @@ const NewGrievanceForm = () => {
       chunksRef.current.push(event.data);
     };
 
-    recorder.onstop = () => {
+    recorder.onstop = async () => {
       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
       const url = URL.createObjectURL(blob);
       setAudioURL(url);
       setIsRecording(false);
+
+      const wavBlob = await blobToWav(blob);
+      wavBlobRef.current = wavBlob
+
+      let formdata = new FormData()
+      formdata.append("file", wavBlob, "audio.webm");
+
+      setIsloading(true)
+      let res = await fetch("http://127.0.0.1:5001/speechToText", {
+        method: 'POST',
+        body: formdata
+      })
+      if (res.status == 200) {
+        res = await res.json()
+        setDescription(res)
+      } else {
+        res = await res.json()
+        setDescription(res.message)
+      }
+      setIsloading(false)
     };
 
     recorder.start();
@@ -49,6 +90,20 @@ const NewGrievanceForm = () => {
     }
   };
 
+  const blobToWav = async (blob) => {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioContext = new AudioContext();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+    const wavBuffer = toWav(audioBuffer);
+    const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+
+    return wavBlob;
+  };
+
+  const handlecomitychange = (event) => {
+    setAssignedTo(event.target.value)
+  }
 
   return (
     <div className='gri-cont-to-fit-in-page'>
@@ -64,52 +119,73 @@ const NewGrievanceForm = () => {
             <input
               type="text"
               className="grievance-input"
-              placeholder="Brief title of your grievance"
+              placeholder={"Brief title of your grievance"}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
           <div>
-            <label className="grievance-label">Description</label>
             <div className="description-row">
+              <div className='flex justify-between align-baseline'>
+                <label className="grievance-label">Description</label>
+                {isRecording ? (
+                  <button
+                    type="button"
+                    className="record-button px-3 py-1 text-sm bg-red-500"
+                    onClick={stopRecording}
+                  >
+                    <StopCircleIcon />   stop Rec
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="record-button px-3 py-1 text-sm bg-black"
+                    onClick={startRecording}
+                    disabled={isloading}
+                  >
+                    <MicNoneIcon /> start Rec
+                  </button>
+                )}
+
+              </div>
               <textarea
                 className="grievance-textarea"
                 rows="4"
-                placeholder="Enter description"
+                placeholder={isloading ? "Transcribing..." : "Enter description"}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={isloading}
               />
-              {isRecording ? 
-                (<button
-                  type="button"
-                  className="record-button"
-                  onClick={stopRecording}
-                >
-                  🎤 stop Recording
-                </button>) : (
-                  <div
-                    type="button"
-                    className="record-button"
-                    onClick={startRecording}
-                  >
-                    🎤 start Recording
-                  </div>
-                )}
-                {audioURL && (
-                  <audio controls src={audioURL}></audio>
-                )}
+              {isloading && (
+                <div className="loading-overlay">
+                  <div className="loader"></div>
+                </div>
+              )}
+              {audioURL && <audio controls src={audioURL}></audio>}
             </div>
           </div>
 
           <div className="grievance-assignment-box">
-            <p>
-              Based on your description, this grievance will be assigned to:
-            </p>
-            <strong>{assignedTo}</strong>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Select Comity</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={assignedTo}
+                label="commty"
+                onChange={handlecomitychange}
+              >
+                <MenuItem value={10}>Ten</MenuItem>
+                <MenuItem value={20}>Twenty</MenuItem>
+                <MenuItem value={30}>Thirty</MenuItem>
+              </Select>
+            </FormControl>
           </div>
 
-          <button type="submit" className="submit-button">
+          <button
+            type="submit" className="submit-button"
+            onClick={handleSubmit}>
             Submit Grievance
           </button>
         </form>

@@ -35,17 +35,6 @@ class UserService:
         except Exception as error:
             db.session.rollback()
             return False, str(error)
-        
-    @staticmethod
-    def add_grievance(user_id,c_id,audio,text):
-        try:
-            new_grievance = Grievance(u_id=user_id,c_id=c_id,audio=audio,text=text,status='pending')
-            db.session.add(new_grievance)
-            db.session.commit()
-            return True, new_grievance
-        except Exception as error:
-            db.session.rollback()
-            return False, str(error)
 
     @staticmethod
     def update(full_name, email, phone, u_id):
