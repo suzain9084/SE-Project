@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function AuthPanel() {
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
+  const [isAdmin, setisAdmin] = useState(false)
   const { User, setUser } = useContext(userContext)
   const navigate = useNavigate()
 
@@ -39,8 +40,8 @@ export default function AuthPanel() {
         alert("Student ID or Email already exists");
       } else if (response.status === 201) {
         alert("Sign up successful");
-        const {full_name,department,year,phone,email,student_id} = resData
-        setUser({full_name,phone,email,student_id,department,year});
+        const { full_name, department, year, phone, email, student_id } = resData
+        setUser({ full_name, phone, email, student_id, department, year });
         navigate("/");
       } else {
         alert("Internal Server Error, Try again later.");
@@ -52,15 +53,26 @@ export default function AuthPanel() {
 
 
   const onSignInSubmit = useCallback(async (data) => {
+    console.log(data)
     try {
-      console.log('SignIn Data:', data);
-      const response = await fetch("http://127.0.0.1:5000/login", {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data)
-      });
+      let response
+      if (data.isAdmin) {
+        response = await fetch("http://127.0.0.1:5002/login", {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data)
+        });
+      } else {
+        response = await fetch("http://127.0.0.1:5000/login", {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data)
+        });
+      }
 
       const resData = await response.json();
 
@@ -77,6 +89,7 @@ export default function AuthPanel() {
       alert("Error: " + error.message);
     }
   }, [User]);
+
 
   return (
     <div className='boby'>
@@ -156,11 +169,16 @@ export default function AuthPanel() {
             <h1 className='h1'>Sign in</h1>
             <span className='span'>or use your account</span>
 
+            <div>
+              <input type="checkbox" name="vehicle1" {...registerSignIn('isAdmin')} onChange={()=>setisAdmin(!isAdmin)} value={isAdmin} />
+              <label for="vehicle1">Login as Admin</label>
+            </div>
+
             <input
               type="text"
               className={`input ${signInErrors.student_id ? 'input-error' : ''}`}
-              placeholder="Student ID"
-              {...registerSignIn('student_id', { required: 'Student ID is required' })}
+              placeholder={isAdmin ? "Admin ID" : "Student ID"}
+              {...registerSignIn(isAdmin ? "admin_id" : "student_id", { required: isAdmin ? 'Admin ID is required' : 'Student ID is required' })}
             />
             {signInErrors.student_id && <p className="error-message">{signInErrors.student_id.message}</p>}
 

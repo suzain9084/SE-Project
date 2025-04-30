@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect,useState,useContext } from 'react';
 import {
   Box,
   Grid,
@@ -17,17 +17,19 @@ import {
   Add,
   TrendingUp,
   TrendingDown,
+  RestaurantMenuRounded,
 } from '@mui/icons-material';
 import { PieChart } from '@mui/x-charts/PieChart';
+import { userContext } from '../context/usercontext';
 
-const StatCard = ({ title, value, icon, color, trend }) => (
+const StatCard = ({ title, value, trend }) => (
   <Card sx={{ height: '100%' }}>
     <CardContent>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography color="textSecondary" gutterBottom>
           {title}
         </Typography>
-        {icon}
+        {title == 'Total Complaints' ? <Report sx={{ color: 'primary.main' }} /> : title == "Resolved" ? <CheckCircle sx={{ color: 'success.main' }} /> : <Pending sx={{ color: 'warning.main' }} /> }
       </Box>
       <Typography variant="h4" component="div" sx={{ mb: 1 }}>
         {value}
@@ -46,7 +48,7 @@ const QuickActionCard = ({ title, description, icon, action }) => (
   <Card sx={{ height: '100%' }}>
     <CardContent>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        {icon}
+        {title == 'Total Complaints' ? <Report sx={{ color: 'primary.main' }} /> : title == "Resolved" ? <CheckCircle sx={{ color: 'success.main' }} /> : <Pending sx={{ color: 'warning.main' }} /> }
         <Typography variant="h6" sx={{ ml: 1 }}>
           {title}
         </Typography>
@@ -62,26 +64,51 @@ const QuickActionCard = ({ title, description, icon, action }) => (
 );
 
 const Dashboard = () => {
-  const stats = [
-    {
-      title: 'Total Complaints',
-      value: '156',
-      icon: <Report sx={{ color: 'primary.main' }} />,
-      trend: 12,
-    },
-    {
-      title: 'Resolved',
-      value: '89',
-      icon: <CheckCircle sx={{ color: 'success.main' }} />,
-      trend: 8,
-    },
-    {
-      title: 'Pending',
-      value: '67',
-      icon: <Pending sx={{ color: 'warning.main' }} />,
-      trend: -5,
-    },
-  ];
+
+  const [stats, setstats] = useState([])
+  const [activity, setacivity] = useState([])
+  const { User, setUser } = useContext(userContext)
+  // const stats = [
+  //   {
+  //     title: 'Total Complaints',
+  //     value: '156',
+  //     trend: 12,
+  //   },
+  //   {
+  //     title: 'Resolved',
+  //     value: '89',
+  //     trend: 8,
+  //   },
+  //   {
+  //     title: 'Pending',
+  //     value: '67',
+  //     trend: -5,
+  //   },
+  // ];
+
+  const fetch_stats_data = async() =>{
+    let res = await fetch(`http://127.0.0.1:5000/get_data_statcard/${User.u_id}`)
+    if (res.ok) {
+      let stats_data = await res.json()
+      setstats(stats_data)
+    }
+  }
+
+  const fetch_recent_acivity_data = async () =>{
+    let res = await fetch(`http://127.0.0.1:5000/grievance/kpi_report/${User.u_id}`)
+    if(res.ok){
+      let data = await res.json()
+      setacivity(data)
+    }
+  }
+
+  useEffect(() => {
+    if(User.u_id){
+        fetch_stats_data()
+        fetch_recent_acivity_data()
+    }
+  }, [])
+  
 
   const quickActions = [
     {
@@ -89,18 +116,15 @@ const Dashboard = () => {
       description: 'Submit a new grievance or complaint',
       icon: <Add color="primary" />
     },
-    // {
-    //   title: 'Track Status',
-    //   description: 'Check the status of your submitted complaints',
-    //   icon: <Report color="secondary" />
-    // },
   ];
 
-  const desktopOS = [
-    { id: 0, value: 15, label: 'Resolved', color: '#1976d2' },
-    { id: 1, value: 30, label: 'In process', color: '#9c27b0' },
-    { id: 2, value: 10, label: 'Pending', color: '#4caf50' }
-  ];
+  let desktopOS = () => { 
+    return [
+          { id: 1, value: stats[0].value, label: 'Total Complain', color: '#9c27b0' },
+          { id: 0, value: stats[1].value, label: 'Resolved', color: '#4caf50' },
+          { id: 2, value: stats[2].value, label: 'Pending', color: '#1976d2' }
+    ]
+  };
 
   const valueFormatter = (value) => `${value}%`;
 
@@ -117,21 +141,21 @@ const Dashboard = () => {
               <StatCard {...stat} />
             </Grid>
           ))}
-          <PieChart
+          {stats.length > 0 && <PieChart
             series={[
               {
-                data: desktopOS,
+                data: desktopOS(),
                 highlightScope: { fade: 'global', highlight: 'item' },
                 faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
                 valueFormatter,
               },
             ]}
             height={200}
-            width={400} />
+            width={500} />}
         </Grid>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          {activity.length > 0 && <Grid item xs={12} md={8}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Recent Activity
@@ -139,11 +163,11 @@ const Dashboard = () => {
               <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Complaints Resolution Rate</Typography>
-                  <Typography variant="body2">75%</Typography>
+                  <Typography variant="body2">{activity[0].value}%</Typography>
                 </Box>
                 <LinearProgress
                   variant="determinate"
-                  value={75}
+                  value={activity[0].value}
                   sx={{
                     height: 8,
                     borderRadius: 4,
@@ -156,11 +180,11 @@ const Dashboard = () => {
               <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Average Response Time</Typography>
-                  <Typography variant="body2">2.5 days</Typography>
+                  <Typography variant="body2">{activity[1].value} days</Typography>
                 </Box>
                 <LinearProgress
                   variant="determinate"
-                  value={60}
+                  value={activity[1].value}
                   sx={{
                     height: 8,
                     borderRadius: 4,
@@ -172,7 +196,7 @@ const Dashboard = () => {
                 />
               </Box>
             </Paper>
-          </Grid>
+          </Grid>}
           <Grid item xs={12} md={4}>
             <Grid container spacing={2}>
               {quickActions.map((action, index) => (
@@ -188,4 +212,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

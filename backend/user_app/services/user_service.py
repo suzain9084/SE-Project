@@ -2,6 +2,7 @@ from shared.models.user_model import User
 from shared.utils.db_utils import db
 from shared.models.grievance_model import Grievance
 from werkzeug.security import generate_password_hash,check_password_hash
+from sqlalchemy import func, extract ,text
 
 class UserService:
     @staticmethod
@@ -50,4 +51,52 @@ class UserService:
             return False, "User not Found"
         except Exception as error:
             return False, str(error)
+    
+    @staticmethod
+    def get_state_card(u_id,this_month,this_year,last_month,last_month_year):
+        try:
+            this_month_counts = db.session.query(Grievance.status, func.count(Grievance.g_id)).filter(
+                Grievance.u_id == u_id,
+                extract('month', Grievance.time_stamp) == this_month,
+                extract('year', Grievance.time_stamp) == this_year
+            ).group_by(Grievance.status).all()
+
+            last_month_counts = db.session.query(
+            Grievance.status, func.count(Grievance.g_id)).filter(
+                Grievance.u_id == u_id,
+                extract('month', Grievance.time_stamp) == last_month,
+                extract('year', Grievance.time_stamp) == last_month_year
+            ).group_by(Grievance.status).all()
+            return True,this_month_counts,last_month_counts
+        except Exception as err:
+            return False, str(err),None
+        
+    @staticmethod
+    def grievance_kpi_report(u_id):
+        try:
+            total = db.session.query(func.count(Grievance.g_id)).filter(Grievance.u_id==u_id).scalar()
+
+            resolved = db.session.query(func.count(Grievance.g_id)).filter(
+                Grievance.status == 'Resolved',Grievance.u_id==u_id
+            ).scalar()
+
+            resolution_rate = (resolved / total) * 100 if total else 0
+    
+            avg_response_time_seconds = db.session.query(
+                func.avg(
+                    func.timestampdiff(
+                        text("SECOND"),
+                        Grievance.time_stamp,
+                        Grievance.updated_at
+                    )
+            ).label('avg_response_time_seconds')).filter(
+                Grievance.status == "Resolved"
+            ).scalar()
+
+            avg_response_time_seconds = avg_response_time_seconds or 0
+            print(resolution_rate,avg_response_time_seconds)
+            return True, resolution_rate,avg_response_time_seconds
+        except Exception as err:
+            print(err)
+            return False,str(err),None
 

@@ -8,20 +8,23 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import { userContext } from '../context/usercontext';
+import { useNavigate } from 'react-router-dom';
 
 
 const NewGrievanceForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [assignedTo, setAssignedTo] = useState('Not Assign');
+  const [assignedTo, setAssignedTo] = useState('not_assign');
   const [isloading, setIsloading] = useState(false)
+  const [language, setlanguage] = useState("english")
 
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
-  const wavBlobRef = useRef(null)
+  const navigate = useNavigate()
+  const audioBlobRef = useRef(null)
 
   const { User } = useContext(userContext)
 
@@ -30,13 +33,20 @@ const NewGrievanceForm = () => {
     let formdata = new FormData()
     formdata.append('title', title)
     formdata.append("description", description)
-    formdata.append('blob', wavBlobRef.current)
-    formdata.append('comitttee', assignedTo)
+    formdata.append('blob', audioBlobRef.current)
+    formdata.append('comittee', assignedTo)
     formdata.append('u_id', User.u_id)
-    let res = await fetch("http://127.0.0.1:5001/speechToText", {
+    formdata.append("language", language)
+    let res = await fetch("http://127.0.0.1:5001/add_grievance", {
       method: "POST",
       body: formdata
     })
+    if (res.status == 200) {
+      alert("Grievance has been added")
+      navigate("/")
+    } else {
+      alert("There is some problem, try again after some time")
+    }
   };
 
   const startRecording = async () => {
@@ -54,15 +64,16 @@ const NewGrievanceForm = () => {
 
     recorder.onstop = async () => {
       const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+      audioBlobRef.current = blob
       const url = URL.createObjectURL(blob);
       setAudioURL(url);
       setIsRecording(false);
 
       const wavBlob = await blobToWav(blob);
-      wavBlobRef.current = wavBlob
 
       let formdata = new FormData()
       formdata.append("file", wavBlob, "audio.webm");
+      formdata.append("language", language)
 
       setIsloading(true)
       let res = await fetch("http://127.0.0.1:5001/speechToText", {
@@ -101,9 +112,6 @@ const NewGrievanceForm = () => {
     return wavBlob;
   };
 
-  const handlecomitychange = (event) => {
-    setAssignedTo(event.target.value)
-  }
 
   return (
     <div className='gri-cont-to-fit-in-page'>
@@ -123,6 +131,25 @@ const NewGrievanceForm = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+          </div>
+
+          <div className="grievance-assignment-box">
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Select Language</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={language}
+                label="commty"
+                onChange={(e) => { setlanguage(e.target.value) }}
+                disabled={isRecording}
+              >
+                <MenuItem value={'english'}>English</MenuItem>
+                <MenuItem value={'hindi'}>Hindi</MenuItem>
+                <MenuItem value={'marathi'}>Marahti</MenuItem>
+                <MenuItem value={'gujarati'}>Gujarati</MenuItem>
+              </Select>
+            </FormControl>
           </div>
 
           <div>
@@ -168,17 +195,21 @@ const NewGrievanceForm = () => {
 
           <div className="grievance-assignment-box">
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Select Comity</InputLabel>
+              <InputLabel id="demo-simple-select-label">Select Commiitee</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={assignedTo}
-                label="commty"
-                onChange={handlecomitychange}
+                label="committee"
+                onChange={(e) => { setAssignedTo(e.target.value) }}
               >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+                <MenuItem value={'not_assign'}>Not Assign</MenuItem>
+                <MenuItem value={'examination'}>Examination</MenuItem>
+                <MenuItem value={"infrastructure"}>Infrastructure</MenuItem>
+                <MenuItem value={"general_facility"}>General Facility</MenuItem>
+                <MenuItem value={"research_facility"}>Research Facility</MenuItem>
+                <MenuItem value={"journals/literature"}>Journals/literature</MenuItem>
+                <MenuItem value={"fellowship"}>Fellowship</MenuItem>
               </Select>
             </FormControl>
           </div>

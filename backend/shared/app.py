@@ -16,3 +16,4 @@ migrate.init_app(app, db)
 from shared.models import user_model
 from shared.models import grievance_model
 from shared.models import commitee_model
+from shared.models import admin_model

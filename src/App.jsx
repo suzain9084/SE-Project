@@ -7,12 +7,19 @@ import SettingsPage from './page/settingsPage.jsx'
 import LoginPage from './page/loginPage'
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from 'react-router'
+import Adminprofile from './page/admin_profile_setting_page.jsx'
+import AdminComplainPage from './page/admin_complain_page.jsx'
+import AdminDashboardepage from './page/admin_dashboard_page.jsx'
+import { userContext } from './context/usercontext.jsx'
+import { useContext } from 'react'
 
 function App() {
+  const {User} = useContext(userContext)
+
   const routes = createBrowserRouter([
     {
       path: "/login",
-      element: <LoginPage props={{login:true}}/>
+      element:  <LoginPage props={{login:true}}/>
     },
     {
       path: "/signup",
@@ -20,11 +27,11 @@ function App() {
     },
     {
       path: "/",
-      element: <UserHomePage/>
+      element: User.isAdmin ?  <AdminComplainPage/> : <UserHomePage/> 
     },
     {
       path:"/dashboard",
-      element: <Userdashboard/>
+      element: User.isAdmin ?  <AdminDashboardepage/> : <Userdashboard/> 
     },
     {
       path: "/about",
@@ -32,7 +39,7 @@ function App() {
     },
     {
       path: "/profile",
-      element: <Profilepage/>
+      element: User.isAdmin ?  <Adminprofile/> : <Profilepage/>
     },
     {
       path: "/addGrievance",
@@ -46,7 +53,6 @@ function App() {
 
   return (
     <>
-    
       <RouterProvider router={routes}/>
     </>
   )

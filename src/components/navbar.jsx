@@ -13,7 +13,7 @@ import { Avatar } from "@mui/material"
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const { User, setUser } = useContext(userContext)
+  const { User, logout } = useContext(userContext)
 
   return (
     <div className="sidebar">
@@ -57,11 +57,10 @@ const Navbar = () => {
 
         <NavLink to={"/settings"} className={({ isActive }) => (isActive ? 'active' : '')}><li><SettingsIcon sx={{ height: "70%", width: 'auto' }} /><span>Settings</span></li></NavLink>
 
-        <NavLink to={"/about"} className={({ isActive }) => (isActive ? 'active' : '')}><li><HelpIcon sx={{ height: "70%", width: 'auto' }} /><span>About</span></li></NavLink>
       </ul>
 
-      <div className="logout">
-        <LogoutIcon /><span>Logouts</span>
+      <div className="logout" onClick={logout}>
+        <LogoutIcon /><span>Logout</span>
       </div>
     </div>
   );
